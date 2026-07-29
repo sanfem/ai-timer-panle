@@ -18,7 +18,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     public JwtAuthenticationFilter(JwtUtils jwtUtils) {
-        this.jwtUtils = new JwtUtils();
+        this.jwtUtils =jwtUtils;
     }
 
     @Override
@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = request.getHeader("Authorization");
+        token=token.substring("Bearer ".length());
 
         if(token==null||token.isEmpty()){
               response.sendError(401);
@@ -39,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         if(!jwtUtils.verifyToken(token).isEmpty()){
             long id=jwtUtils.getUserId(token);
-            request.getSession().setAttribute("userid",id);
+            request.setAttribute("userId",id);
         }
         else{
             response.sendError(401);

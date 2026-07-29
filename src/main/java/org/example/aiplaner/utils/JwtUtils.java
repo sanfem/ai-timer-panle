@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import org.example.aiplaner.Entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,17 @@ public class JwtUtils {
 
     @Value("${jwt.expiration}")
     private Long expiration;
+
+    // 👇 加上这个方法
+    @PostConstruct
+    public void checkConfig() {
+        System.out.println("========================================");
+        System.out.println("JWT secret 是否为 null: " + (secret == null));
+        System.out.println("JWT secret 长度: " + (secret == null ? "N/A" : secret.length()));
+        System.out.println("JWT expiration: " + expiration);
+        System.out.println("========================================");
+    }
+
 
     public String generateToken(UserEntity userEntity) {
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -60,8 +72,8 @@ public class JwtUtils {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
-        return claims.get("userid", Long.class);
+        String userIdStr = claims.get("userId", String.class);
+        return Long.parseLong(userIdStr);
     }
 
     public String getUsername(String token) {
