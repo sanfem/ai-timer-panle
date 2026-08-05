@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @Component
-@ServerEndpoint("api/Ai")
+@ServerEndpoint("/api/Ai")
 class AiController {
     private AiService aiService;
 
@@ -36,8 +36,11 @@ class AiController {
         System.out.println("连接建立: " + conversationId);
     }
 
+    /*
     @OnMessage
     public void onMessage(String message, Session session) {
-        return aiService.Ai()
+        return aiService.Ai();
     }
+    */
+
 }

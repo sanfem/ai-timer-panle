@@ -2,6 +2,7 @@ package org.example.aiplaner.utils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +32,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = request.getHeader("Authorization");
-        token=token.substring("Bearer ".length());
+        Cookie[] cookies = request.getCookies();
 
-        if(token==null||token.isEmpty()){
-              response.sendError(401);
-              return;
+        if(cookies==null){
+            response.sendError(401);
+            return;
         }
+        String token=" ";
+        for(Cookie cookie:cookies){
+            if(cookie.getName().equals("token")){
+                token=cookie.getValue();
+                break;
+            }
+        }
+        if(null==token||token.isEmpty()){
+            response.sendError(401);
+            return;
+        }
+
+
+
+        if(token.isEmpty()){
+            response.sendError(401);
+            return;
+        }
+
         if(!jwtUtils.verifyToken(token).isEmpty()){
             long id=jwtUtils.getUserId(token);
             request.setAttribute("userId",id);
