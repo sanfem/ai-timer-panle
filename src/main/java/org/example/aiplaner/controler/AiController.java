@@ -1,46 +1,34 @@
 package org.example.aiplaner.controler;
 
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
-import jakarta.websocket.server.ServerEndpoint;
-import org.example.aiplaner.DTO.LogMessage;
 import org.example.aiplaner.Service.AiService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
-
-@Component
-@ServerEndpoint("/api/Ai")
+@RestController
+@RequestMapping("/api/AI")
 class AiController {
     private AiService aiService;
 
     @Autowired
-    public AiController(AiService aiService){
-        this.aiService=aiService;
+
+    public AiController(AiService aiService) {
+        this.aiService = aiService;
     }
 
-    private static ConcurrentHashMap<String, Session> sessionMap = new ConcurrentHashMap<>();
 
-    @OnOpen
-    public void onOpen(Session session) {
-        String conversationId = session.getId();
-        sessionMap.put(conversationId, session);
-        System.out.println("连接建立: " + conversationId);
+
+    @PostMapping("/chat")
+    public ResponseEntity<Map<String, Object>> send(@RequestAttribute long userId,@RequestBody Map<String,String> request){
+        String message=request.get("message");
+        String res=aiService.Ai(userId,message);
+        System.out.println(res);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("content",res));
     }
 
-    /*
-    @OnMessage
-    public void onMessage(String message, Session session) {
-        return aiService.Ai();
-    }
-    */
 
 }

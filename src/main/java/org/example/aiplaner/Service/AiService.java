@@ -24,7 +24,7 @@ public class AiService {
 
      @Autowired
     public AiService(ChatClient.Builder builder, TemplateExample templateExample, AiTool aiTool,ChatMemory chatMemory) {
-         this.chatClient = builder.defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()).build();
+         this.chatClient = builder.build();
          this.templateExample = templateExample;
          this.aiTool = aiTool;
          this.chatMemory=chatMemory;
@@ -41,7 +41,7 @@ public class AiService {
          return ans;
     }
 
-    public String Ai(int ID,String conversationID,String data){
+    public String Ai(long ID,String data){
         PromptTemplate promptTemplate=new PromptTemplate(templateExample.getTemplateText());
         String renderedText = promptTemplate.render(Map.of("ID", String.valueOf(ID)));
         System.out.println("正在和ai连接");
@@ -49,7 +49,6 @@ public class AiService {
                  .prompt(renderedText)
                 .tools(aiTool)
                  .user(data)
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationID))
                  .call()
                  .responseEntity(String.class);
         Usage usage=result.response().getMetadata().getUsage();

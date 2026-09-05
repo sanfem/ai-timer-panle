@@ -50,7 +50,6 @@ public class JwtUtils {
 
     public Claims verifyToken(String token) {
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        System.out.println(token);
         try {
             return Jwts.parser()
                     .verifyWith(secretKey)

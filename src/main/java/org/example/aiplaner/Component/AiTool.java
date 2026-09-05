@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -71,5 +72,13 @@ public class AiTool {
     {
         itemService.DeleteTodoItem(Integer.parseInt(Id));
         return "success";
+    }
+
+    @Tool(description = "用这个工具来查看现在的时间和日期")
+    public String LookDateTime(){
+        LocalDateTime now=LocalDateTime.now();
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return  now.format(formatter);  // 返回 "2026-09-04 18:50:24"
     }
 }

@@ -1,5 +1,8 @@
 package org.example.aiplaner.utils;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -32,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+
         Cookie[] cookies = request.getCookies();
 
         if(cookies==null){
@@ -50,16 +54,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-
-
         if(token.isEmpty()){
             response.sendError(401);
             return;
         }
 
-        if(!jwtUtils.verifyToken(token).isEmpty()){
+
+        Claims claims=null;
+        try {
+            claims = jwtUtils.verifyToken(token);
+        }catch (RuntimeException e){
+            System.out.printf(e.getMessage());
+        }
+
+        if(!claims.isEmpty()){
             long id=jwtUtils.getUserId(token);
             request.setAttribute("userId",id);
+
         }
         else{
             response.sendError(401);
