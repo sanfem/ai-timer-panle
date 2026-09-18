@@ -1,5 +1,6 @@
 package org.example.aiplaner.Service;
 
+import org.example.aiplaner.Entity.Apibalance;
 import org.example.aiplaner.Entity.UserEntity;
 import org.example.aiplaner.dao.Userdao;
 import org.example.aiplaner.utils.JwtUtils;
@@ -8,7 +9,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +53,14 @@ public class LoginService {
          }
     }
 
+    /**
+     * 校验验证码并落库注册。
+     *
+     * <p>@Transactional 的意义：Apibalance 和 UserEntity 是两张表，必须同成同败。
+     * Hibernate 会先 INSERT apibalance（拿到自增 id），再 INSERT user 并回填 user.balanceID，
+     * 所以这里不需要手动 save 两次。</p>
+     */
+    @Transactional
     public UserEntity checkCode(UserEntity user,String code){
         String realCode = redisTemplate.opsForValue().get("Code:" + user.getEmail());
         if (realCode == null) {
@@ -60,6 +71,12 @@ public class LoginService {
         }
         // 验证完删除
         redisTemplate.delete("Code:" + user.getEmail());
+        // 新用户初始化一条 0 余额记录，靠 UserEntity 上的 cascade = ALL 一起插入
+        if (user.getBalance() == null) {
+            Apibalance balance = new Apibalance();
+            balance.setBalance(BigDecimal.ZERO);
+            user.setBalance(balance);
+        }
         userdao.save(user);
         return login(user.getUsername(), user.getPassword());
     }

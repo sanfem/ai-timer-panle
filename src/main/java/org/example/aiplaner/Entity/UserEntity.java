@@ -2,10 +2,9 @@ package org.example.aiplaner.Entity;
 
 
 import jakarta.persistence.*;
-import tools.jackson.databind.ser.jdk.JDKKeySerializers;
 
 @Entity
-@Table(name="user")
+@Table(name = "user", schema = "ai-planer")
 public class UserEntity {
 
 
@@ -21,6 +20,39 @@ public class UserEntity {
     private String name="momo";
     @Column(name="Email")
     private String email;
+
+
+    /**
+     * 一个用户一条余额记录（一对一）。
+     *
+     * <p>外键在本表：user.balanceID -> apibalance.id，所以 UserEntity 是关联的"拥有端"，
+     * 由它负责写这个外键列。是否级联删除取决于业务：这里余额属于用户，用户删了余额也没意义，
+     * 所以 cascade = ALL + orphanRemoval = true。</p>
+     *
+     * <p>LAZY 是默认值，这里显式写出来：查用户时不会顺带把余额查出来，
+     * 需要余额时用 {@code Userdao#findByUsernameWithBalance} 的 join fetch 一次取回，避免 N+1。</p>
+     */
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "balanceID", referencedColumnName = "id")
+    private Apibalance balance;
+
+    public Apibalance getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Apibalance balance) {
+        this.balance = balance;
+    }
+
+    // ---- 兼容旧调用方的别名，新代码请用 getBalance / setBalance ----
+
+    public Apibalance getBalanceID() {
+        return balance;
+    }
+
+    public void setBalanceID(Apibalance balance) {
+        this.balance = balance;
+    }
 
 
     public Long getId() {
@@ -62,4 +94,5 @@ public class UserEntity {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

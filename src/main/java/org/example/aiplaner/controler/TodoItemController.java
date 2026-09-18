@@ -74,9 +74,11 @@ class TodoItemController {
     @PostMapping("/update")
     public ResponseEntity<Map<String,Object>> UpdateItem(@RequestAttribute Long userId , @RequestBody ItemMessage itemMessage) {
         int userid= Math.toIntExact(userId);
+
         Todoitem todoitem=new Todoitem();
+        todoitem.setId(itemMessage.getUserId());
         todoitem.setContont(itemMessage.getcontent());
-        todoitem.setFinish(false);
+        todoitem.setFinish(itemMessage.isFinish());
         todoitem.setDeadline(itemMessage.getDeadline());
         todoitem.setImportance(itemMessage.getImportance());
         todoitem.setStartTime(itemMessage.getStartTime());

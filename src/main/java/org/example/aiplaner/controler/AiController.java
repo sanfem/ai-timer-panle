@@ -15,7 +15,6 @@ class AiController {
     private AiService aiService;
 
     @Autowired
-
     public AiController(AiService aiService) {
         this.aiService = aiService;
     }

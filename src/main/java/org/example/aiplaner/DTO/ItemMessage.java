@@ -13,6 +13,8 @@ public class ItemMessage {
     private LocalDateTime startTime;
     private LocalDateTime deadline;
 
+
+
     public int getUserId() {
         return userId;
     }
